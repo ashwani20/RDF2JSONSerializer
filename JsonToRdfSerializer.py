@@ -1,34 +1,47 @@
 from rdflib import *
+import os
 import json
 
 class JsonToRdfSerializer():
-    def parseSubject(self, subject, predicateObjectTuple, tempDict):
-        tempDict = {}
+    def parseSubject(self, predicateObjectTuple):
+        '''
+        Iterates through each predicate and object tuple for a particular subject and maps them into a predicate
+        Dictionary. If there are multiple objects for one predicate, then all the objects are grouped together as a list
+        object.
+        :param predicateObjectTuple: predicate and object tuple for a particular subject
+        :return: a predicate Dictionary containing objects
+        '''
+        predicateDict = {}
         for eachEntry in predicateObjectTuple:
             predicate = self.rdfGraph.qname(eachEntry[0])
             object = eachEntry[1]
             resource = {}
             if isinstance(object, Literal):
                 resource[predicate] = object
-                if predicate in tempDict:
-                    if isinstance(tempDict[predicate], str):
-                        tempDict[predicate] = [tempDict[predicate]]
-                    tempDict[predicate].append(resource)
+                if predicate in predicateDict:
+                    if isinstance(predicateDict[predicate], str):
+                        predicateDict[predicate] = [predicateDict[predicate]]
+                    predicateDict[predicate].append(object)
                 else:
-                    tempDict[predicate] = str(object)
+                    predicateDict[predicate] = str(object)
             elif isinstance(object, URIRef):
                 isURIRef = True
                 resource["rdf:resource"] = str(object)
-                if predicate not in tempDict:
-                    tempDict[predicate] = resource
+                if predicate not in predicateDict:
+                    predicateDict[predicate] = resource
                 else:
-                    if isinstance(tempDict[predicate], dict):
-                        tempDict[predicate] = [tempDict[predicate]]
-                    tempDict[predicate].append(resource)
+                    if isinstance(predicateDict[predicate], dict):
+                        predicateDict[predicate] = [predicateDict[predicate]]
+                    predicateDict[predicate].append(resource)
 
-        return tempDict
+        return predicateDict
 
     def parseRDFData(self, file):
+        '''
+        accepts a file containing RDF data and transforms it into JSON format. Finally, returns the JSON data.
+        :param file: file containing RDF data
+        :return: transformed JSON data
+        '''
         self.rdfGraph = Graph().parse(file, format='application/rdf+xml')
         self.jsonDict = {}
 
@@ -40,22 +53,44 @@ class JsonToRdfSerializer():
 
         for eachSubject in self.rdfGraph.subjects():
             tempDict = {}
-            self.jsonDict[eachSubject] = self.parseSubject(eachSubject, self.rdfGraph.predicate_objects(eachSubject),
-                                                           tempDict)
+            self.jsonDict[eachSubject] = self.parseSubject(self.rdfGraph.predicate_objects(eachSubject))
 
         # first convert jsonDict to string using json.dumps() and then convert the Json string to
         # Json format
         jsonStr = json.dumps(self.jsonDict)
         return json.loads(jsonStr)
 
+
+    def writeFile(self, jsonData, path, fileName):
+        '''
+        Writes JSON data into a file
+        :param jsonData: JSON data
+        :param path: path for the JSON data
+        :param fileName: the name of the file
+        :return:
+        '''
+        with open(path + fileName, 'w') as file:
+            file.write(str(jsonData))
+
     def readFile(self, filePath):
+        '''
+        Reads RDF data using the filePath and then calls parseRDFData method for converting RDF to JSON format and
+        finally returns the transformed JSON data.
+        :param filePath: the file path for the RDF data
+        :return: transformed JSON data
+        '''
         with open(filePath, "r", encoding='utf-8') as file:
-            return self.parseRDFData(file)
+            path, fileWithExt = os.path.split(filePath)
+            fileName = fileWithExt.split(".")[0]
+            jsonData = self.parseRDFData(file)
+            newJsonFileName = fileName + '_converted.json'
+            self.writeFile(jsonData, path, newJsonFileName)
+            return jsonData
 
 
 
 if __name__ == '__main__':
     obj = JsonToRdfSerializer()
-    jsonData = obj.readFile("amsterdammuseum_links.rdf")
+    # jsonData = obj.readFile("amsterdammuseum_links.rdf")
+    jsonData = obj.readFile("test1.rdf")
     print(jsonData)
-    # print(jsonData['namespaces'])
