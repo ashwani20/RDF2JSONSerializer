@@ -21,10 +21,10 @@
     ]
   },
   'http://www.w3schools.com/RDF': {
-    'si:homepage': 'http://www.w3schools.com',
     'si:author': [
       'Pan Sil D',
       'Jan Egil Refsnes'
-    ]
+    ],
+    'si:homepage': 'http://www.w3schools.com'
   }
 }

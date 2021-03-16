@@ -33,7 +33,6 @@ class JsonToRdfSerializer():
                     if isinstance(predicateDict[predicate], dict):
                         predicateDict[predicate] = [predicateDict[predicate]]
                     predicateDict[predicate].append(resource)
-
         return predicateDict
 
     def parseRDFData(self, file):
@@ -69,7 +68,7 @@ class JsonToRdfSerializer():
         :param fileName: the name of the file
         :return:
         '''
-        with open(path + fileName, 'w') as file:
+        with open(path + fileName, 'w', encoding='utf-8') as file:
             file.write(str(jsonData))
 
     def readFile(self, filePath):
@@ -91,6 +90,6 @@ class JsonToRdfSerializer():
 
 if __name__ == '__main__':
     obj = JsonToRdfSerializer()
-    # jsonData = obj.readFile("amsterdammuseum_links.rdf")
-    jsonData = obj.readFile("test1.rdf")
+    jsonData = obj.readFile("amsterdammuseum_links.rdf")
+    # jsonData = obj.readFile("test1.rdf")
     print(jsonData)
