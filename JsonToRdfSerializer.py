@@ -3,11 +3,12 @@ import os
 import json
 
 class JsonToRdfSerializer():
-    def parseSubject(self, predicateObjectTuple):
+    def parseSubject(self, subject, predicateObjectTuple):
         '''
         Iterates through each predicate and object tuple for a particular subject and maps them into a predicate
         Dictionary. If there are multiple objects for one predicate, then all the objects are grouped together as a list
         object.
+        :param subject: subject in the RDF statement
         :param predicateObjectTuple: predicate and object tuple for a particular subject
         :return: a predicate Dictionary containing objects
         '''
@@ -33,6 +34,8 @@ class JsonToRdfSerializer():
                     if isinstance(predicateDict[predicate], dict):
                         predicateDict[predicate] = [predicateDict[predicate]]
                     predicateDict[predicate].append(resource)
+            elif isinstance(object, BNode):
+                predicateDict[predicate] = self.parseSubject(object, self.rdfGraph.predicate_objects(object))
         return predicateDict
 
     def parseRDFData(self, file):
@@ -51,8 +54,9 @@ class JsonToRdfSerializer():
         self.jsonDict['namespaces'] = namespaces
 
         for eachSubject in self.rdfGraph.subjects():
-            tempDict = {}
-            self.jsonDict[eachSubject] = self.parseSubject(self.rdfGraph.predicate_objects(eachSubject))
+            if isinstance(eachSubject, BNode):
+                continue
+            self.jsonDict[eachSubject] = self.parseSubject(eachSubject, self.rdfGraph.predicate_objects(eachSubject))
 
         # first convert jsonDict to string using json.dumps() and then convert the Json string to
         # Json format
@@ -87,9 +91,8 @@ class JsonToRdfSerializer():
             return jsonData
 
 
-
 if __name__ == '__main__':
     obj = JsonToRdfSerializer()
-    jsonData = obj.readFile("amsterdammuseum_links.rdf")
-    # jsonData = obj.readFile("test1.rdf")
+    # jsonData = obj.readFile("amsterdammuseum_links.rdf")
+    jsonData = obj.readFile("test1.rdf")
     print(jsonData)

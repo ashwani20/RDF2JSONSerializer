@@ -1,16 +1,14 @@
-<?xml version="1.0"?>
 <rdf:RDF
-xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-xmlns:ns1="http://www.w3.org/2002/07/owl#"
-xmlns:si="http://www.recshop.fake/siteinfo#">
-    <rdf:Description rdf:about="http://www.w3schools.com/RDF">
-        <si:author>Jan Egil Refsnes</si:author>
-        <si:author>Pan Sil D</si:author>
-        <si:homepage>http://www.w3schools.com</si:homepage>
-    </rdf:Description>
-    <rdf:Description rdf:about="http://dbpedia.org/resource/Louis_XIV_of_France">
-        <ns1:sameAs rdf:resource="http://purl.org/collections/nl/am/p-43502"/>
-        <ns1:sameAs rdf:resource="http://purl.org/collections/nl/am/p-30027"/>
-        <ns1:sameAs rdf:resource="http://purl.org/collections/nl/am/p-36754"/>
-    </rdf:Description>
+      xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+      xmlns:ex="http://example.org/data#">
+<rdf:Description rdf:about="http://example.org/web-data" ex:title="Web Data">
+  <ex:professor rdf:nodeID="blankNode1"/>
+  <ex:students>Jan</ex:students>
+  <ex:students>John</ex:students>
+</rdf:Description>
+<rdf:Description rdf:nodeID="blankNode1">
+  <ex:homePage rdf:nodeID="blankNode2"/>
+</rdf:Description>
+<rdf:Description rdf:nodeID="blankNode2" ex:fullName="Alice Carol">
+</rdf:Description>
 </rdf:RDF>
